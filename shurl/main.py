@@ -1,10 +1,12 @@
-from typing import Union
+import uvicorn
 
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 
-from .models import Item
-
+from db import get_url_by_token, get_stats, update_stats
+from models import UrlRequest
+from token_generator import generate_token
+from exceptions import TokenNotFoundError
 
 app = FastAPI(
     title="Shurl",
@@ -19,26 +21,40 @@ app = FastAPI(
 )
 
 
-@app.get(
-    "/hello",
-    summary="Path request",
-)
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get(
-    "/items/{item_id}",
-    summary="Query request",
-)
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
 @app.post(
-    "/tostring",
-    summary="Body request",
-    response_class=HTMLResponse,
+    "/get_token",
+    summary="Generate token by url",
 )
-def to_string(body: Item) -> str:
-    return str(body)
+def create_token(url_request: UrlRequest) -> str:
+    token = generate_token(
+        url=url_request.original_url,
+        custom_alias=url_request.custom_alias,
+    )
+    return {'token': token}
+
+
+@app.get(
+    "/{token}",
+    summary="Redirect by token",
+    response_class=RedirectResponse,
+)
+def redirect(token):
+    try:
+        url = get_url_by_token(token)
+    except TokenNotFoundError:
+        raise HTTPException(status_code=404, detail="Token not found")
+    else:
+        update_stats(token)
+        return RedirectResponse(url=url)
+
+
+@app.get(
+    "/stats/{token}",
+    summary="Get clicks stats by token",
+)
+def get_token_stats(token):
+    return {token: get_stats(token)}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
