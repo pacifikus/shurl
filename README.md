@@ -26,8 +26,9 @@ To run load tests via [locust](https://locust.io/) run application, then run `lo
 
 You can observe and download these metrics:
 - RPS
-- Min/Max/Median/Average response time 
-- Failures count
+- Min/Max/Median response time 
+- Request count
+
 
 
 ### Documentation
