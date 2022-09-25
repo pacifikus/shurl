@@ -29,7 +29,7 @@ You can observe and download these metrics:
 - Min/Max/Median response time 
 - Request count
 
-
+[Load testing metrics](https://github.com/pacifikus/shurl/blob/hw2/load_testing_stats.md)
 
 ### Documentation
 
