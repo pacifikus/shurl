@@ -1,12 +1,15 @@
+from fastapi import FastAPI
+from fastapi import HTTPException
+from fastapi.responses import RedirectResponse
+from shurl.db import get_stats
+from shurl.db import get_url_by_token
+from shurl.db import update_stats
+from shurl.exceptions import TokenAlreadyExistError
+from shurl.exceptions import TokenNotFoundError
+from shurl.models import UrlRequest
+from shurl.token_generator import generate_token
 import uvicorn
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
-
-from db import get_url_by_token, get_stats, update_stats
-from models import UrlRequest
-from token_generator import generate_token
-from exceptions import TokenNotFoundError
 
 app = FastAPI(
     title="Shurl",
@@ -26,11 +29,18 @@ app = FastAPI(
     summary="Generate token by url",
 )
 def create_token(url_request: UrlRequest) -> str:
-    token = generate_token(
-        url=url_request.original_url,
-        custom_alias=url_request.custom_alias,
-    )
-    return {'token': token}
+    try:
+        token = generate_token(
+            url=url_request.original_url,
+            custom_alias=url_request.custom_alias,
+        )
+    except TokenAlreadyExistError:
+        raise HTTPException(
+            status_code=400,
+            detail="Custom alias token already exists",
+        )
+    else:
+        return {"token": token}
 
 
 @app.get(
@@ -53,7 +63,10 @@ def redirect(token):
     summary="Get clicks stats by token",
 )
 def get_token_stats(token):
-    return {token: get_stats(token)}
+    try:
+        return {token: get_stats(token)}
+    except TokenNotFoundError:
+        raise HTTPException(status_code=404, detail="Token not found")
 
 
 if __name__ == "__main__":
