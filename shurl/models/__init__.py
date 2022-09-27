@@ -1,4 +1,4 @@
-from .item import Item
+from .url import UrlRequest
 
 
-__all__ = ["Item"]
+__all__ = ["UrlRequest"]
