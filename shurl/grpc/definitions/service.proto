@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message Url {
+  string url_address = 1;
+}
+
+service TestService {
+  rpc GetTinyUrl(Url) returns (Url);
+}
