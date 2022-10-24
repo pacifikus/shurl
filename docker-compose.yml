@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+  rabbit:
+    image: rabbitmq:3.6-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - shurl-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:3.2.5-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - shurl-network
+
+  mongodb:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - shurl-network
+
+  shortener:
+    image: shortener
+    container_name: shortener
+    restart: always
+    depends_on:
+      - mongodb
+      - rabbit
+    ports:
+      - "5002:5002"
+    networks:
+      - shurl-network
+
+  redirector:
+    image: redirector
+    container_name: redirector
+    restart: always
+    depends_on:
+      - redis
+    ports:
+      - "5001:5001"
+    networks:
+      - shurl-network
+
+  cacher:
+    image: cacher
+    container_name: cacher
+    restart: always
+    depends_on:
+      - redis
+      - rabbit
+    ports:
+      - "5003:5003"
+    networks:
+      - shurl-network
+
+
+networks:
+  shurl-network:

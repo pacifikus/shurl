@@ -5,7 +5,7 @@ import string
 from fastapi.testclient import TestClient
 import mongomock
 import pytest
-from shurl.main import app
+from shurl.app.main import app
 from shurl.models.url import UrlRequest
 
 
