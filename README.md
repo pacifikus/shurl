@@ -33,4 +33,4 @@ You can observe and download these metrics:
 
 ### Documentation
 
-You can find Swagger documentation at the `/docs` endpoint
+You can find Swagger documentation at the `/docs` endpoint.
