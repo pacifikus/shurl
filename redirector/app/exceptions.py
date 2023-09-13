@@ -1,7 +1,3 @@
-class FeijoaError(Exception):
-    """Common class for feijoa exceptions."""
-
-
 class TokenNotFoundError(Exception):
     """Raises if the given token doesn't exist."""
 

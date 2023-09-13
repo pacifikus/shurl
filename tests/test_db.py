@@ -46,22 +46,6 @@ class TestDB:
             is not None
         )
 
-    def test_get_url_by_token_with_exists_token(
-        self, added_token_item
-    ):
-        result = shurl.db.get_url_by_token(
-            token=added_token_item["token"],
-        )
-        assert result == added_token_item["url"]
-
-    def test_get_url_by_token_with_unexists_token(
-        self, new_token_item
-    ):
-        with pytest.raises(TokenNotFoundError):
-            shurl.db.get_url_by_token(
-                token=new_token_item[0]["token"],
-            )
-
     def test_update_stats_with_exists_token(self, added_token_item):
         token = added_token_item["token"]
         old_stats = shurl.db.db_client["stats"].find_one(

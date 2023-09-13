@@ -1,9 +1,9 @@
 from datetime import datetime
 from datetime import timedelta
 
-from shurl import db_client
-from shurl.exceptions import TokenAlreadyExistError
-from shurl.exceptions import TokenNotFoundError
+from app import db_client
+from app.exceptions import TokenAlreadyExistError
+from app.exceptions import TokenNotFoundError
 
 
 def is_token_exists(token):
@@ -34,15 +34,7 @@ def add_token_to_db(token, original_url, expire_date=None):
     db_client["stats"].insert_one(document=new_stats_item)
 
 
-def get_url_by_token(token):
-    url = db_client["tokens"].find_one({"token": token})
-    if url:
-        return url["url"]
-    else:
-        raise TokenNotFoundError()
-
-
-def update_stats(token):
+def update_stats(token: str):
     db_client["stats"].update_one(
         {"token": token}, {"$inc": {"clicks": 1}}
     )
